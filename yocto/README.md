@@ -202,6 +202,8 @@ and, guess what? it contains `autologin`! See below:
 
 ![autologin in /usr/bin](readme/04_foundautologin.png)
 
+# Appendix
+
 ## Troubleshooting
 
 Have a look for the `do_compile` logs:
@@ -210,4 +212,22 @@ Have a look for the `do_compile` logs:
 
 ![Build Log for autologin](readme/05_buildlogs.png)
 
+## Things to Include
 
+Performing some actions before invoking "configure" in a recipe.
+
+```
+...
+inherit externalsrc pkgconfig meson
+...
+do_preconfigure() {
+    ${S}/scripts/preparestuff.sh
+}
+
+addtask do_preconfigure before do_configure
+
+do_install:append() {
+    ...do some after install stuff here...
+}
+...
+```
