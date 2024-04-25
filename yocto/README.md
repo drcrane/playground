@@ -18,7 +18,7 @@ Clone poky:
 
 You will now be in the build directory:
 
-    usee@host /home/yocto/project/build $ _
+    user@host /home/yocto/project/build $ _
 
 Build the minimal image (this will take some time):
 
@@ -28,6 +28,13 @@ By default the image will be built for qemu:
 
     ...
     MACHINE              = "qemux86-64"
+    ...
+
+By default yocto uses rpm packages, this can be changed in `local.conf`
+(`build/conf/local.conf`), this will package deb files:
+
+    ...
+    PACKAGE_CLASSES ?= "package_deb"
     ...
 
 ## Output
@@ -139,6 +146,9 @@ from example. This is odd but nevermind... try this:
 
 ![Output of bitbake example](readme/03_examplebuild.png)
 
+To create a new recipe the example directory can be copied and the files within
+renamed as appropriate.
+
 ### Adding a Programme to A New Layer
 
 A simple no-nonsense [automatic login programme](https://wiki.alpinelinux.org/wiki/TTY_Autologin)
@@ -201,6 +211,18 @@ The root image file is now `build/tmp/deploy/images/qemux86-64/core-image-minima
 and, guess what? it contains `autologin`! See below:
 
 ![autologin in /usr/bin](readme/04_foundautologin.png)
+
+## Alteration of Config Files
+
+Now the `sysvinit` file needs to be modified. First we need to find what it
+contains by default... the file is located `/etc/inittab` so in our yocto cache
+it should be `build/`.
+
+Copy the example recipe:
+
+    cp -r meta-pfwd/recipes-example/example meta-pfwd/recipes-example/autologin-sysvinit
+    mv meta-pfwd/recipes-example/autologin-sysvinit/example_0.1.bb meta-pfwd/recipes-example/autologin-sysvinit/autologin-sysvinit_0.1.bb
+    vi meta-pfwd/recipes-example/autologin-sysvinit/autologin-sysvinit_0.1.bb
 
 # Appendix
 
