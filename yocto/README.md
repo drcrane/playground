@@ -2,11 +2,11 @@
 
 Create docker container
 
-    docker build --tag yocto/build:v1 .
+    docker build --tag yocto/buildenv:v1 .
 
 Run container:
 
-    docker run --rm -it -v $(pwd):/home/yocto/project yocto/build:v1
+    docker run --rm -it -v $(pwd):/home/yocto/project yocto/buildenv:v1
 
 Clone poky:
 
@@ -220,9 +220,68 @@ it should be `build/`.
 
 Copy the example recipe:
 
-    cp -r meta-pfwd/recipes-example/example meta-pfwd/recipes-example/autologin-sysvinit
-    mv meta-pfwd/recipes-example/autologin-sysvinit/example_0.1.bb meta-pfwd/recipes-example/autologin-sysvinit/autologin-sysvinit_0.1.bb
-    vi meta-pfwd/recipes-example/autologin-sysvinit/autologin-sysvinit_0.1.bb
+    $ mv sysvinit-alteration/sysvinit-inittab meta-autologin/recipes-autologin/
+
+
+`sysvinit-inittab_%.bbappend` and `files/inittab` may be altered to your
+preferences. Unfortunately busybox as included with poky at the time of writing
+does not support the arguments used in the Alpine Linux article. However the
+included script will automatically login the root user when booted. It DOES
+NOT, however, set up the terminal correctly for new VTs.
+
+    bitbake -c cleansstate sysvinit-inittab
+    bitbake -c clean sysvinit-inittab
+
+After building the image it may be mounted to verify the `inittab` contents:
+
+    losetup loop5 build/tmp/deploy/images/qemux86-64/core-image-minimal-autologin-qemux86-64.rootfs.ext4
+    mount /dev/loop5 /mnt/loop5
+
+Note: for more complicated setup (i.e. those image which contain a partition
+table) there is an extra step. I hope to write more about this but here is a
+hint:
+
+    losetup loop5 imagewithpartitions.img
+    partprobe /dev/loop5
+    mount /dev/loop5p1 /dev/loop5p1
+
+Now view the content of `inittab`, and don't forget to unmount... it was
+mounted rw so could become corrupted:
+
+    cat /mnt/loop5/etc/inittab
+    umount /mnt/loop5
+    losetup -d /dev/loop5
+
+Next boot it again with QEMU and see the automatic login.
+
+![Automatic Login Complete](readme/07_autologincomplete.png)
+
+### Creating a new session in `/dev/tty2`
+
+To create a new session in `/dev/tty2`:
+
+The shell has told us that this it will not operate properly:
+
+    -sh: can't access tty; job control turned off
+
+At present the other VTs do not exist, try and press Alt-F2, Alt-F3 etc and
+the screen will not change. However `chvt` will work:
+
+    chvt 2
+
+Then Alt-F1 and Alt-F2 will work as expected!
+
+Source code for chvt is here and will require some more investigation... for
+now it is possible to create a login prompt with the original inittab line:
+
+    /sbin/getty 38400 tty2
+
+There is no need to "activate" the `tty` with `chvt`, getty will do that if
+required.
+
+    /sbin/getty 38400 tty3
+
+
 
 # Appendix
 
