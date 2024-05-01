@@ -293,6 +293,8 @@ will be running on QEMU).
 
 Sway will be installed by a new image in the `meta-gui` layer.
 
+[chvt.c in busybox](https://elixir.bootlin.com/busybox/latest/source/console-tools/chvt.c)
+
 # Appendix
 
 ## Troubleshooting
