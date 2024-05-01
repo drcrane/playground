@@ -281,7 +281,17 @@ required.
 
     /sbin/getty 38400 tty3
 
+# Installing Sway
 
+Graphical Environment creation in Sway (probably headless via VNC since this
+will be running on QEMU).
+
+    git clone --single-branch --branch scarthgap https://codeberg.org/flk/meta-wayland.git
+    git clone --single-branch --branch scarthgap git://git.openembedded.org/meta-openembedded
+    bitbake-layers create-layer meta-gui
+    bitbake-layers add-layer meta-gui
+
+Sway will be installed by a new image in the `meta-gui` layer.
 
 # Appendix
 
